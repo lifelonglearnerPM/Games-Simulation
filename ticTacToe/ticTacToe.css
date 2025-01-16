@@ -27,18 +27,13 @@ h1 {
 
 .game-board {
   display: grid;
-  grid-template-columns: repeat(3, 100px);
-  grid-template-rows: repeat(3, 100px);
+  grid-template-columns: repeat(3, 100px);  /* 3 columns, each 100px */
+  grid-template-rows: repeat(3, 100px);     /* 3 rows, each 100px */
   gap: 5px;
   justify-content: center;
   margin-bottom: 20px;
 }
 
-.row {
-  display: flex;
-}
-
-/* Cell styles */
 .cell {
   width: 100px;
   height: 100px;

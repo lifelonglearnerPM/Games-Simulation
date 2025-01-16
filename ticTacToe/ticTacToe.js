@@ -1,11 +1,9 @@
-// Declare variables outside of functions so they're in the correct scope
 let currentPlayer = 'X';
 let gameBoardState = ['', '', '', '', '', '', '', '', ''];
 let gameActive = true;
 let statusDisplay;
 let cells;
 
-// Define the resetGame function first
 function resetGame() {
   gameBoardState = ['', '', '', '', '', '', '', '', ''];
   currentPlayer = 'X';
@@ -14,7 +12,7 @@ function resetGame() {
 
   cells.forEach(cell => {
     cell.innerText = '';
-    cell.classList.remove('highlight'); // Remove highlight class from all cells
+    cell.classList.remove('highlight'); // Remove highlight class if reset
   });
 
   const winningLine = document.querySelector('.winning-line');
@@ -26,29 +24,22 @@ function resetGame() {
 function initTicTacToe() {
   console.log('Initializing Tic Tac Toe');
 
-  // Create the game board container dynamically
   const gameContainer = document.getElementById('gameContainer');
 
   // Clear any existing game content
   gameContainer.innerHTML = '';
 
-  // Add the game board
+  // Create the game board
   const gameBoard = document.createElement('div');
   gameBoard.classList.add('game-board');
   gameContainer.appendChild(gameBoard);
 
-  // Create and append the rows and cells
-  for (let i = 0; i < 3; i++) {
-    const row = document.createElement('div');
-    row.classList.add('row');
-    gameBoard.appendChild(row);
-
-    for (let j = 0; j < 3; j++) {
-      const cell = document.createElement('div');
-      cell.classList.add('cell');
-      cell.dataset.index = i * 3 + j;  // Set a unique index for each cell
-      row.appendChild(cell);
-    }
+  // Create and append the cells to the game board
+  for (let i = 0; i < 9; i++) {
+    const cell = document.createElement('div');
+    cell.classList.add('cell');
+    cell.dataset.index = i;  // Set a unique index for each cell
+    gameBoard.appendChild(cell);
   }
 
   // Add the reset button
@@ -84,6 +75,7 @@ function initTicTacToe() {
       const [a, b, c] = pattern;
       if (gameBoardState[a] && gameBoardState[a] === gameBoardState[b] && gameBoardState[a] === gameBoardState[c]) {
         highlightWinningLine(pattern);
+        highlightWinningCells(pattern); // Highlight the winning cells
         return true;
       }
     }
@@ -97,16 +89,12 @@ function initTicTacToe() {
     return false;
   };
 
-  // Highlight the winning line and cells
+  // Highlight the winning line
   const highlightWinningLine = (pattern) => {
     const cells = document.querySelectorAll('.cell');
     const [a, b, c] = pattern;
 
-    // Add a "highlight" class to the winning cells
-    cells[a].classList.add('highlight');
-    cells[b].classList.add('highlight');
-    cells[c].classList.add('highlight');
-
+    // Get cell positions
     const rectA = cells[a].getBoundingClientRect();
     const rectB = cells[b].getBoundingClientRect();
     const rectC = cells[c].getBoundingClientRect();
@@ -115,24 +103,30 @@ function initTicTacToe() {
     winningLine.classList.add('winning-line');
     document.body.appendChild(winningLine);
 
-    // Determine the winning line (horizontal, vertical, or diagonal)
+    // Horizontal line logic
     if (rectA.top === rectB.top && rectB.top === rectC.top) {
       const left = Math.min(rectA.left, rectB.left, rectC.left);
       const right = Math.max(rectA.right, rectB.right, rectC.right);
       const top = rectA.top + rectA.height / 2;
+
       winningLine.style.width = `${right - left}px`;
       winningLine.style.top = `${top}px`;
       winningLine.style.left = `${left}px`;
       winningLine.classList.add('horizontal');
-    } else if (rectA.left === rectB.left && rectB.left === rectC.left) {
+    }
+    // Vertical line logic
+    else if (rectA.left === rectB.left && rectB.left === rectC.left) {
       const top = Math.min(rectA.top, rectB.top, rectC.top);
       const bottom = Math.max(rectA.bottom, rectB.bottom, rectC.bottom);
       const left = rectA.left + rectA.width / 2;
+
       winningLine.style.height = `${bottom - top}px`;
       winningLine.style.left = `${left}px`;
       winningLine.style.top = `${top}px`;
       winningLine.classList.add('vertical');
-    } else {
+    }
+    // Diagonal (top-left to bottom-right)
+    else if (rectA.top < rectB.top && rectB.top < rectC.top && rectA.left < rectB.left && rectB.left < rectC.left) {
       const left = rectA.left + rectA.width / 2;
       const top = rectA.top + rectA.height / 2;
       const right = rectC.left + rectC.width / 2;
@@ -145,6 +139,28 @@ function initTicTacToe() {
       winningLine.style.left = `${left}px`;
       winningLine.classList.add('diagonal');
     }
+    // Diagonal (top-right to bottom-left)
+    else if (rectA.top < rectB.top && rectB.top < rectC.top && rectA.left > rectB.left && rectB.left > rectC.left) {
+      const left = rectC.left + rectC.width / 2;
+      const top = rectC.top + rectC.height / 2;
+      const right = rectA.left + rectA.width / 2;
+      const bottom = rectA.top + rectA.height / 2;
+
+      winningLine.style.width = `${Math.sqrt(Math.pow(right - left, 2) + Math.pow(bottom - top, 2))}px`;
+      winningLine.style.transformOrigin = 'center';
+      winningLine.style.transform = `rotate(${Math.atan2(bottom - top, right - left) * 180 / Math.PI}deg)`;
+      winningLine.style.top = `${top}px`;
+      winningLine.style.left = `${left}px`;
+      winningLine.classList.add('diagonal');
+    }
+  };
+
+  // Highlight the winning cells
+  const highlightWinningCells = (pattern) => {
+    pattern.forEach(index => {
+      const cell = cells[index];
+      cell.classList.add('highlight'); // Apply highlight class to winning cells
+    });
   };
 
   // Handle cell click
