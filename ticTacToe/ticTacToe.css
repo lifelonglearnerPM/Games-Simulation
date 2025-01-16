@@ -38,6 +38,7 @@ h1 {
   display: flex;
 }
 
+/* Cell styles */
 .cell {
   width: 100px;
   height: 100px;
